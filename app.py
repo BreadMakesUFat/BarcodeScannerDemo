@@ -4,6 +4,7 @@
 # TODO: github?
 # TODO: browser settings to directly access page (add exceptions)
 # TODO: add updater for git?
+# TODO: fix encoding for csv
 
 from flask import Flask, render_template, request
 import csv 
@@ -42,6 +43,7 @@ def route_bookings():
     # fetch data from request
     bon = data["bon"]
     msg = data["msg"]
+
     dt = datetime.datetime.now()
     date = dt.strftime("%Y-%m-%d")
     time = dt.strftime("%H-%M-%S")
