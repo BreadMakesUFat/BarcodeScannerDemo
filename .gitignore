@@ -1,0 +1,5 @@
+__pycache__/
+static/bootstrap*
+static/html5-qrcode
+Anleitung/
+config.py

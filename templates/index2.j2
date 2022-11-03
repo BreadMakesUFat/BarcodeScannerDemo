@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<meta charset="UTF-8">
+<title>Barcode Scanner</title>
+<link rel="icon" type="image/x-icon" href="static/img/icons8-frog-96.png">
+<link rel="stylesheet" href="static/bootstrap-5.2.2-dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="static/css/index.css">
+<style>
+</style>
+<script src="static/html5-qrcode/html5-qrcode.min.js"></script>
+<script src="static/bootstrap-5.2.2-dist/js/bootstrap.min.js"></script>
+
+<body>
+    <h1>Barcode Scanner</h1>
+    <div id="outerWrapper">
+    <div id="formWrapper">
+        <!-- Scanner Area -->
+        <div id="reader"></div>
+
+        <!-- Test prompt -->
+        <div id="textPrompt">
+            <div class="mb-3 text-center">
+                <label id="destLabel" class="form-label mb-3">Type in the destination:</label>
+                <textarea class="form-control mb-3" id="textUserInput" rows="6"></textarea>
+                <button type="submit" id="buttonSubmit" class="btn btn-dark btn-lg" onclick="submit()">Ok</button>
+            </div> 
+        </div>
+    </div>
+    </div>      
+
+    <script>
+
+        // helper functions for ui
+        function disable(id) {
+            document.getElementById(id).style.display = "none";
+        }
+
+        function enable(id) {
+            document.getElementById(id).style.display = "table-cell";
+        }
+
+        // Scanner
+        const html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: {{ size[0] }}, height: {{ size[1] }} } };
+
+        // save scanned id
+        let decodedID = 0;
+
+        function startScanning() {
+            html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+            .catch(error => {
+                alert("No camera was found!");
+            });
+        }
+
+        function stopScanning() {
+            html5QrCode.stop().then(ignore => {
+                // stopped scanning, idle
+            }).catch(err => {
+                alert("error: camera can´t stop!");
+            });
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+
+            // save id
+            decodedID = decodedText;
+
+            // Close the scanner
+            stopScanning();
+
+            // Change scene
+            disable("reader");
+            enable("textPrompt");  
+        }
+
+        // helper variable for animations
+        let isAnimated = false;
+
+        function submit() {
+
+            // remove err class, if it was previously added
+            if (isAnimated) {
+                document.getElementById("textUserInput").classList.remove("err");
+            }
+            let input = document.getElementById("textUserInput").value;
+
+            if (!input) {
+                // shake text area
+                isAnimated = true;
+                document.getElementById("textUserInput").classList.add("err");
+            }
+            else {
+                isAnimated = false;
+                // create request
+                const content = {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        bon: decodedID,
+                        msg: input
+                    })
+                };
+
+                // send post request
+                const response = fetch("/bookings/", content) 
+                    .then(resp => {
+                        if (resp.ok) {
+                            alert("Die Buchung war erfolgreich.");
+                        }
+                        else {
+                            alert("Es gab einen Fehler bei der Buchung!");
+                        }
+                    }
+                );
+
+                // change scene
+                disable("textPrompt");
+                enable("reader");
+                startScanning();
+            }
+        }
+
+        // start with scanner scene
+        startScanning();
+        
+    
+    </script>
+</body>
+</html> 
