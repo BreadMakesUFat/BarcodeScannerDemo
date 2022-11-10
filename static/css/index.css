@@ -7,6 +7,9 @@ h1 {
     text-align: center;
 }
 
+ul li {
+    list-style-type: none;
+}
 
 #outerWrapper {
     display: inline;
@@ -22,15 +25,35 @@ h1 {
 }
 
 #reader {
-    display: table-cell;
+    display: none;
     vertical-align: middle;
     background-color: white;
     opacity: 0.8;
 }
 
 #textPrompt {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+#confirmationPage {
     display: none;
     vertical-align: middle;
+}
+
+.textInput {
+    font-size: 40px;
+}
+
+.imgIcon {
+    border: 5px solid black;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.imageLabel {
+    font-size: 40px;
+    margin-bottom: 1px;
 }
 
 #textUserInput {
@@ -39,12 +62,17 @@ h1 {
     opacity: 0.8;
 }
 
+#barcodeScannerPage {
+    display: none;
+    vertical-align: middle;
+}
+
 #destLabel {
     text-align: center;
     font-size: 50px;
 }
 
-#buttonSubmit {
+#buttonSubmitDestination, #buttonSubmitBON {
     width: 150px;
 }
 

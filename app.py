@@ -1,10 +1,4 @@
-# TODO: improve design
-# TODO: proper error handling + messages
-# TODO: improve code structure 
-# TODO: github?
-# TODO: browser settings to directly access page (add exceptions)
-# TODO: add updater for git?
-# TODO: fix encoding for csv
+# TODO: fix animation bug + remove variable isAnimated
 
 from flask import Flask, render_template, request
 import csv 
@@ -36,13 +30,18 @@ def route_bookings():
 
     # check if fields exist 
     data = request.get_json()
-    if "bon" not in data or "msg" not in data:
+    if "scanContent" not in data:
+        return "Missing data for bons or destinations", 400
+
+    data = data["scanContent"]
+    if "bons" not in data or "destination" not in data:
         print(data)
-        return "Missing data for bon or msg", 400 
+        return "Missing data for bons or destinations", 400 
 
     # fetch data from request
-    bon = data["bon"]
-    msg = data["msg"]
+    # TODO: handle new format {destination, [bon]}
+    bons = data["bons"]
+    destination = data["destination"]
 
     dt = datetime.datetime.now()
     date = dt.strftime("%Y-%m-%d")
@@ -50,10 +49,11 @@ def route_bookings():
 
 
     # write to csv file
-    row = [bon, msg, date, time]
     with open(file_name, "a") as file:
-        writer = csv.writer(file)
-        writer.writerow(row)
+        for bon in bons:
+            row = [bon, destination, date, time]
+            writer = csv.writer(file)
+            writer.writerow(row)
 
     return "OK", 200
 
