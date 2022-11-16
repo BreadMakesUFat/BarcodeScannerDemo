@@ -1,4 +1,5 @@
 # TODO: fix animation bug + remove variable isAnimated
+# TODO: fix zoom 
 
 from flask import Flask, render_template, request
 import csv 
@@ -12,7 +13,7 @@ app.config.from_object("config.DevelopmentConfig")
 
 # Create csv file for current day 
 file_name = "csv/" + datetime.datetime.now().strftime("%Y-%m-%d") + ".csv"
-header = ["BON", "Destination", "Date", "Time"]
+header = ["BON", "Destination", "No. of recipient", "Amount", "Date", "Time"]
 if not os.path.exists(file_name):
     with open(file_name, "a") as file:
             writer = csv.writer(file)
@@ -34,13 +35,14 @@ def route_bookings():
         return "Missing data for bons or destinations", 400
 
     data = data["scanContent"]
-    if "bons" not in data or "destination" not in data:
+    if "bons" not in data or "destination" not in data or "recipients" not in data or "amounts" not in data:
         print(data)
         return "Missing data for bons or destinations", 400 
 
     # fetch data from request
-    # TODO: handle new format {destination, [bon]}
     bons = data["bons"]
+    recipients = data["recipients"]
+    amounts = data["amounts"]
     destination = data["destination"]
 
     dt = datetime.datetime.now()
@@ -50,8 +52,11 @@ def route_bookings():
 
     # write to csv file
     with open(file_name, "a") as file:
-        for bon in bons:
-            row = [bon, destination, date, time]
+        for i in range(len(bons)):
+            bon = bons[i]
+            recipient = recipients[i]
+            amount = amounts[i]
+            row = [bon, destination, recipient, amount, date, time]
             writer = csv.writer(file)
             writer.writerow(row)
 

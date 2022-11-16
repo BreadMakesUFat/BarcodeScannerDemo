@@ -18,7 +18,7 @@
         <!-- Destination prompt -->
         <div id="textPrompt">
             <div class="mb-3 text-center">
-                <label id="destLabel" class="form-label mb-3">Type in the destination:</label>
+                <label class="form-label mb-3 pageLabel">Type in the destination:</label>
                 <textarea class="form-control mb-3 textInput" id="textUserInput" rows="1"></textarea>
                 <button type="submit" id="buttonSubmitDestination" class="btn btn-dark btn-lg" onclick="submitDestination()">Ok</button>
             </div> 
@@ -35,10 +35,31 @@
             </div>
         </div>
 
+        <div id="recipientPage">
+            <div class="mb-3 text-center">
+                <label class="form-label mb-3 pageLabel">No. of recipient:</label>
+                <textarea class="form-control mb-3 textInput" id="textRecipientInput" rows="1"></textarea>
+                <button type="submit" id="buttonSkipRecipient" class="btn btn-dark btn-lg" onclick="submitRecipient(null)">Skip</button>
+                <button type="submit" id="buttonSubmitRecipient" class="btn btn-dark btn-lg" onclick="submitRecipient(document.getElementById('textRecipientInput').value)">Ok</button>
+            </div>
+        </div>
+
+        <div id="amountPage">
+            <div class="mb-3 form-check text-center">
+                <label class="form-label mb-3 pageLabel">Amount delivered:</label>
+                <select class="form-select text-center mb-5" id="dropdownAmount" aria-label="Default select example" onchange="dropdownAmountChange()">
+                    <option value="full" selected>Full</option>
+                    <option value="custom">Input</option>
+                </select>
+                <textarea class="form-control mb-3 textInput" id="textAmountInput" rows="1" disabled></textarea>
+                <button type="submit" id="buttonSubmitAmount" class="btn btn-dark btn-lg" onclick="submitAmount()">Ok</button>
+            </div>
+        </div>
+
         <!-- barcode scanner page -->
         <div id="barcodeScannerPage">
             <div class="mb-3 text-center">
-                <label id="idLabel" class="form-label mb-3">Scan the BON</label>
+                <label id="idLabel" class="form-label mb-3 pageLabel">Scan the BON</label>
                 <textarea class="form-control mb-3 textInput" id="barcodeScannerInput" rows="1"></textarea>
                 <button type="submit" id="buttonSubmitBON" class="btn btn-dark btn-lg" onclick="submitBarcodeBON()">Ok</button>
             </div>
@@ -58,7 +79,9 @@
         // create object to save entry data
         let scanContent = {
             destination: "",
-            bons: []
+            bons: [],
+            recipients: [],
+            amounts: []
         };
 
         // get width, height from context
@@ -101,6 +124,8 @@
 
         function clearData() {
             scanContent.destination = "";
+            scanContent.amounts = [];
+            scanContent.recipients = [];
             scanContent.bons = [];
         }
 
@@ -171,7 +196,7 @@
             scanContent.bons.push(decodedText);
             stopScanning()
             disable("barcodeScannerPage");
-            enable("confirmationPage");
+            enable("recipientPage");
         }
 
         function clickSubmit() {
@@ -187,6 +212,39 @@
                 alert("No bons have been added yet!");
             }
             
+        }
+
+        function submitRecipient(txt) {
+            if (txt == "") {
+                // error 
+            }
+            else {
+                scanContent.recipients.push(txt);
+                clearText("textRecipientInput");
+                disable("recipientPage");
+                enable("amountPage");
+                }  
+        }
+
+        function submitAmount() {
+            let amount = document.getElementById("textAmountInput").value;
+            let full = document.getElementById("dropdownAmount").value == "full";
+
+            if (full || amount) {
+                if (full) {
+                    scanContent.amounts.push("full");
+                }
+                else {
+                    scanContent.amounts.push(amount);
+                }
+                clearText("textAmountInput");
+                disable("amountPage");
+                enable("confirmationPage");
+            }
+            else {
+                // add error animation
+            }
+
         }
 
         function submitBarcodeBON() {
@@ -208,7 +266,17 @@
                 // change scene to confirmation page
                 clearText("barcodeScannerInput");
                 disable("barcodeScannerPage");
-                enable("confirmationPage");
+                enable("recipientPage");
+            }
+        }
+
+        function dropdownAmountChange() {
+            let state = document.getElementById("dropdownAmount").value;
+            if (state == "full") {
+                document.getElementById("textAmountInput").disabled = true;
+            }
+            else {
+                document.getElementById("textAmountInput").disabled = false;
             }
         }
     

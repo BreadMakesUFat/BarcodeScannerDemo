@@ -43,6 +43,7 @@ ul li {
 
 .textInput {
     font-size: 40px;
+    resize: none;
 }
 
 .imgIcon {
@@ -67,7 +68,16 @@ ul li {
     vertical-align: middle;
 }
 
-#destLabel {
+#recipientPage {
+    display: none;
+    vertical-align: middle;
+}
+#amountPage {
+    display: none;
+    vertical-align: middle;
+}
+
+.pageLabel {
     text-align: center;
     font-size: 50px;
 }
