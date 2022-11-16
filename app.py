@@ -11,14 +11,20 @@ app = Flask(__name__)
 # load config
 app.config.from_object("config.DevelopmentConfig")
 
-# Create csv file for current day 
-file_name = "csv/" + datetime.datetime.now().strftime("%Y-%m-%d") + ".csv"
-header = ["BON", "Destination", "No. of recipient", "Amount", "Date", "Time"]
-if not os.path.exists(file_name):
-    with open(file_name, "a") as file:
-            writer = csv.writer(file)
-            writer.writerow(header)
+def get_filename():
+    return "csv/" + datetime.datetime.now().strftime("%Y-%m-%d") + ".csv"
 
+# Create csv file for current day iff it doesnt exist already
+def init_csv():
+    file_name = get_filename()
+    header = ["BON", "Destination", "No. of recipient", "Amount", "Date", "Time"]
+    if not os.path.exists(file_name):
+        with open(file_name, "a") as file:
+                writer = csv.writer(file)
+                writer.writerow(header)
+
+# initialize csv on start
+init_csv()
 
 # Routes
 @app.route("/", methods=["GET"])
@@ -51,6 +57,7 @@ def route_bookings():
 
 
     # write to csv file
+    file_name = get_filename()
     with open(file_name, "a") as file:
         for i in range(len(bons)):
             bon = bons[i]
