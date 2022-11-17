@@ -24,21 +24,14 @@ ul li {
     width: inherit;
 }
 
-#reader {
+.Scene {
     display: none;
     vertical-align: middle;
+}
+
+#reader {
     background-color: white;
     opacity: 0.8;
-}
-
-#textPrompt {
-    display: table-cell;
-    vertical-align: middle;
-}
-
-#confirmationPage {
-    display: none;
-    vertical-align: middle;
 }
 
 .textInput {
@@ -57,32 +50,12 @@ ul li {
     margin-bottom: 1px;
 }
 
-#textUserInput {
-    resize: none;
-    background-color: white;
-    opacity: 0.8;
-}
-
-#barcodeScannerPage {
-    display: none;
-    vertical-align: middle;
-}
-
-#recipientPage {
-    display: none;
-    vertical-align: middle;
-}
-#amountPage {
-    display: none;
-    vertical-align: middle;
-}
-
 .pageLabel {
     text-align: center;
     font-size: 50px;
 }
 
-#buttonSubmitDestination, #buttonSubmitBON {
+.submitButton {
     width: 150px;
 }
 

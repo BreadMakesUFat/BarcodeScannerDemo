@@ -29,7 +29,7 @@ init_csv()
 # Routes
 @app.route("/", methods=["GET"])
 def route_index():
-    return render_template("index2.j2", size = app.config["SCANNER_BOX"])
+    return render_template("index.j2", size = app.config["SCANNER_BOX"])
 
 
 @app.route("/bookings/", methods=["POST"])
@@ -37,10 +37,12 @@ def route_bookings():
 
     # check if fields exist 
     data = request.get_json()
+    """
     if "scanContent" not in data:
         return "Missing data for bons or destinations", 400
 
     data = data["scanContent"]
+    """
     if "bons" not in data or "destination" not in data or "recipients" not in data or "amounts" not in data:
         print(data)
         return "Missing data for bons or destinations", 400 

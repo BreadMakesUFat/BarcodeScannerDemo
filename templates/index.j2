@@ -3,125 +3,210 @@
 <meta charset="UTF-8">
 <title>Barcode Scanner</title>
 <link rel="icon" type="image/x-icon" href="static/img/icons8-frog-96.png">
-<link rel="stylesheet" href="static/bootstrap-5.2.2-dist/css/bootstrap.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
 <link rel="stylesheet" href="static/css/index.css">
-<style>
-</style>
-<script src="static/html5-qrcode/html5-qrcode.min.js"></script>
-<script src="static/bootstrap-5.2.2-dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="static/js/scanner.js" type="text/javascript"></script>
+<script src="static/js/utils.js" type="text/javascript"></script>
 
 <body>
-    <h1>Barcode Scanner</h1>
     <div id="outerWrapper">
     <div id="formWrapper">
-        <!-- Scanner Area -->
-        <div id="reader"></div>
+        <!-- Camera Scanner Scene -->
+        <div id="reader" class="Scene"></div>
 
-        <!-- Test prompt -->
-        <div id="textPrompt">
+        <!-- Destination Scene -->
+        <div id="destinationScene" class="Scene">
             <div class="mb-3 text-center">
-                <label id="destLabel" class="form-label mb-3">Type in the destination:</label>
-                <textarea class="form-control mb-3" id="textUserInput" rows="6"></textarea>
-                <button type="submit" id="buttonSubmit" class="btn btn-dark btn-lg" onclick="submit()">Ok</button>
+                <label class="form-label mb-3 pageLabel">Type in the destination:</label>
+                <textarea class="form-control mb-3 textInput" id="destinationTextInput" rows="1"></textarea>
+                <button type="submit" id="buttonSubmitDestination" class="btn btn-dark btn-lg submitButton" onclick="submitDestination()">Ok</button>
             </div> 
         </div>
+
+        <!-- Confirmation Scene -->
+        <div id="confirmationScene" class="Scene">
+            <div class="mb-3 text-center">
+                <ul>
+                    <li><p class="imageLabel">Barcode Scanner</p><img src="static/img/icons8-barcode-reader-100.png" class="imgIcon" width="300" height="300" onclick="clickBarcodeScanner()"></li>
+                    <li><p class="imageLabel">Camera</p><img src="static/img/icons8-cameras-64.png" class="imgIcon" width="300" height="300" onclick="clickCameraScanner()"></li>
+                    <li><p class="imageLabel">Submit</p><img src="static/img/icons8-save-as-80.png" class="imgIcon" width="300" height="300" onclick="clickSubmit()"></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Recipient Scene -->
+        <div id="recipientScene" class="Scene">
+            <div class="mb-3 text-center">
+                <label class="form-label mb-3 pageLabel">No. of recipient:</label>
+                <textarea class="form-control mb-3 textInput" id="recipientTextInput" rows="1"></textarea>
+                <button type="submit" id="buttonSkipRecipient" class="btn btn-dark btn-lg submitButton" onclick="submitRecipient(null)">Skip</button>
+                <button type="submit" id="buttonSubmitRecipient" class="btn btn-dark btn-lg submitButton" onclick="submitRecipient(document.getElementById('recipientTextInput').value)">Ok</button>
+            </div>
+        </div>
+
+        <!-- Amount Scene -->
+        <div id="amountScene" class="Scene">
+            <div class="mb-3 form-check text-center">
+                <label class="form-label mb-3 pageLabel">Amount delivered:</label>
+                <select class="form-select text-center mb-5" id="dropdownAmount" aria-label="Default select example" onchange="dropdownAmountChange()">
+                    <option value="full" selected>Full</option>
+                    <option value="custom">Input</option>
+                </select>
+                <textarea class="form-control mb-3 textInput" id="amountTextInput" rows="1" disabled></textarea>
+                <button type="submit" id="buttonSubmitAmount" class="btn btn-dark btn-lg submitButton" onclick="submitAmount()">Ok</button>
+            </div>
+        </div>
+
+        <!-- Barcode Scanner Scene -->
+        <div id="barcodeScannerScene" class="Scene">
+            <div class="mb-3 text-center">
+                <label id="idLabel" class="form-label mb-3 pageLabel">Scan the BON</label>
+                <textarea class="form-control mb-3 textInput" id="barcodeScannerInput" rows="1"></textarea>
+                <button type="submit" id="buttonSubmitBON" class="btn btn-dark btn-lg submitButton" onclick="submitBarcodeBON()">Ok</button>
+            </div>
+        </div>
+
     </div>
     </div>      
 
     <script>
 
-        // save scanned id
-        let decodedID = 0;
+        // init the camera scanner object
+        initScanner();
 
-        // scanner object
-        let html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader",
-            {   fps: 10,
-                qrbox: {width: {{ size[0] }}, height: {{ size[1] }} },
-            },
-            false
-        );
+        // init the ScanContent object 
+        let scanContent = null;
 
-        function disable(id) {
-            document.getElementById(id).style.display = "none";
-        }
+        // get width, height from context
+        const width = {{ size[0] }};
+        const height = {{ size[1] }};
 
-        function enable(id) {
-            document.getElementById(id).style.display = "table-cell";
-        }
+        // create Scenes
+        const destinationScene = new Scene("destinationScene");
+        const cameraScene = new Scene("reader");
+        const barcodeScannerScene = new Scene("barcodeScannerScene");
+        const confirmationScene = new Scene("confirmationScene");
+        const recipientScene = new Scene("recipientScene");
+        const amountScene = new Scene("amountScene");
 
-        function startScanning() {
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-        }
+        // enable first Scene
+        destinationScene.enable();
 
-        function stopScanning() {
-            html5QrcodeScanner.clear().then(_ => {
-                // nothing
-                }).catch(error => {
-                    alert("could not properly close the scanner!")
-            });
-        }
 
-        function onScanSuccess(decodedText, decodedResult) {
+        // callback functions for scene elements
 
-            // save id
-            decodedID = decodedText;
+        // Destination Scene
+        function submitDestination() {
 
-            // Close the scanner
-            stopScanning();
-
-            // Change scene
-            disable("reader");
-            enable("textPrompt");  
-        }
-    
-        function onScanFailure(error) {
-            // idle
-        }
-
-        function submit() {
-
-            let input = document.getElementById("textUserInput").value;
+            let input = document.getElementById("destinationTextInput").value;
 
             if (!input) {
-                // change color
+                // TODO: add shake animation
             }
             else {
 
-                // create request
-                const content = {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        bon: decodedID,
-                        msg: input
-                    })
-                };
+                // Create new ScanContent object for current destination
+                scanContent = new ScanContent(input);
 
-                // send post request
-                const response = fetch("/bookings/", content) 
-                    .then(resp => {
-                        if (resp.ok) {
-                            alert("Die Buchung war erfolgreich.");
-                        }
-                        else {
-                            alert("Es gab einen Fehler bei der Buchung!");
-                        }
-                    }
-                );
-
-                // change scene
-                disable("textPrompt");
-                enable("reader");
-                startScanning();
+                // change scene to confirmation scene
+                clearText("destinationTextInput");
+                destinationScene.disable();
+                confirmationScene.enable();
             }
         }
 
-        // start with scanner scene
-        startScanning();
-        
+        function clickBarcodeScanner() {
+            //focus("barcodeScannerInput");
+            confirmationScene.disable();
+            barcodeScannerScene.enable();
+        }
+
+        function clickCameraScanner() {
+            confirmationScene.disable();
+            cameraScene.enable();
+            startScanning(width, height, scannerCallback);
+        }
+
+        function scannerCallback(decodedText, decodedResult) {
+            scanContent.addBon(decodedText);
+            stopScanning()
+            barcodeScannerScene.disable();
+            recipientScene.enable();
+        }
+
+        function clickSubmit() {
+
+            if(scanContent.bons.length > 0) {
+                scanContent.sendPost();
+                confirmationScene.disable();
+                destinationScene.enable();
+            }
+            else {
+                alert("No bons have been added yet!");
+            }
+            
+        }
+
+        // Recipient Scene
+
+        function submitRecipient(txt) {
+            if (txt == "") {
+                // error animation
+            }
+            else {
+                scanContent.addRecipient(txt);
+                clearText("recipientTextInput");
+                recipientScene.disable();
+                amountScene.enable();
+                }  
+        }
+
+        function submitAmount() {
+            let input = document.getElementById("amountTextInput").value;
+            let full = document.getElementById("dropdownAmount").value == "full";
+
+            if (full || input) {
+                let amount = full ? "full" : input;
+                scanContent.addAmount(amount);
+                clearText("amountTextInput");
+                amountScene.disable();
+                confirmationScene.enable();
+            }
+            else {
+                // add error animation
+            }
+
+        }
+
+        // Barcode Scene 
+
+        function submitBarcodeBON() {
+            let input = document.getElementById("barcodeScannerInput").value;
+
+            if (!input) {
+                // shake text area
+            }
+            else {
+                scanContent.addBon(input);
+
+                // change scene to confirmation page
+                clearText("barcodeScannerInput");
+                barcodeScannerScene.disable();
+                recipientScene.enable();
+            }
+        }
+
+        function dropdownAmountChange() {
+            let state = document.getElementById("dropdownAmount").value;
+            if (state == "full") {
+                document.getElementById("amountTextInput").disabled = true;
+            }
+            else {
+                document.getElementById("amountTextInput").disabled = false;
+            }
+        }
     
     </script>
 </body>
