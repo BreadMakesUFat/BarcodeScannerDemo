@@ -4,8 +4,8 @@
 let html5QrCode;
 
 // functionality
-function initScanner() {
-    html5QrCode = new Html5Qrcode("reader");
+function initScanner(id) {
+    html5QrCode = new Html5Qrcode(id);
 }
 
 function startScanning(width, height, callback) {

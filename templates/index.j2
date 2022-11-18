@@ -14,7 +14,7 @@
     <div id="outerWrapper">
     <div id="formWrapper">
         <!-- Camera Scanner Scene -->
-        <div id="reader" class="Scene"></div>
+        <div id="cameraScene" class="Scene"></div>
 
         <!-- Destination Scene -->
         <div id="destinationScene" class="Scene">
@@ -74,7 +74,7 @@
     <script>
 
         // init the camera scanner object
-        initScanner();
+        initScanner("cameraScene");
 
         // init the ScanContent object 
         let scanContent = null;
@@ -85,7 +85,7 @@
 
         // create Scenes
         const destinationScene = new Scene("destinationScene");
-        const cameraScene = new Scene("reader");
+        const cameraScene = new Scene("cameraScene");
         const barcodeScannerScene = new Scene("barcodeScannerScene");
         const confirmationScene = new Scene("confirmationScene");
         const recipientScene = new Scene("recipientScene");
