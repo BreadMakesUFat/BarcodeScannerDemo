@@ -50,11 +50,8 @@
         <div id="amountScene" class="Scene">
             <div class="mb-3 form-check text-center">
                 <label class="form-label mb-3 pageLabel">Amount delivered:</label>
-                <select class="form-select text-center mb-5" id="dropdownAmount" aria-label="Default select example" onchange="dropdownAmountChange()">
-                    <option value="full" selected>Full</option>
-                    <option value="custom">Input</option>
-                </select>
-                <textarea class="form-control mb-3 textInput" id="amountTextInput" rows="1" disabled></textarea>
+                <textarea class="form-control mb-3 textInput" id="amountTextInput" rows="1"></textarea>
+                <button type="submit" id="buttonSubmitAmountFull" class="btn btn-dark btn-lg submitButton" onclick="submitAmount(true)">Full</button>
                 <button type="submit" id="buttonSubmitAmount" class="btn btn-dark btn-lg submitButton" onclick="submitAmount()">Ok</button>
             </div>
         </div>
@@ -163,9 +160,8 @@
                 }  
         }
 
-        function submitAmount() {
+        function submitAmount(full = false) {
             let input = document.getElementById("amountTextInput").value;
-            let full = document.getElementById("dropdownAmount").value == "full";
 
             if (full || input) {
                 let amount = full ? "full" : input;
@@ -195,16 +191,6 @@
                 clearText("barcodeScannerInput");
                 barcodeScannerScene.disable();
                 recipientScene.enable();
-            }
-        }
-
-        function dropdownAmountChange() {
-            let state = document.getElementById("dropdownAmount").value;
-            if (state == "full") {
-                document.getElementById("amountTextInput").disabled = true;
-            }
-            else {
-                document.getElementById("amountTextInput").disabled = false;
             }
         }
     
