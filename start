@@ -1,3 +1,0 @@
-script_path="${BASH_SOURCE[0]%/*}/app.py"
-python3 $script_path
-read -n 1 -s
