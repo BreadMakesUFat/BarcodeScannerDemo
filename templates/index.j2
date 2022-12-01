@@ -13,14 +13,12 @@
 <body>
     <div id="outerWrapper">
     <div id="formWrapper">
-        <!-- Camera Scanner Scene -->
-        <div id="cameraScene" class="Scene"></div>
-
+        
         <!-- Destination Scene -->
         <div id="destinationScene" class="Scene">
             <div class="mb-3 text-center">
                 <label class="form-label mb-3 pageLabel">Type in the destination:</label>
-                <textarea class="form-control mb-3 textInput" id="destinationTextInput" rows="1"></textarea>
+                <textarea class="form-control mb-3 textInput" id="destinationTextInput" rows="1" autofocus></textarea>
                 <button type="submit" id="buttonSubmitDestination" class="btn btn-dark btn-lg submitButton" onclick="submitDestination()">Ok</button>
             </div> 
         </div>
@@ -30,9 +28,21 @@
             <div class="mb-3 text-center">
                 <ul>
                     <li><p class="imageLabel">Barcode Scanner</p><img src="static/img/icons8-barcode-reader-100.png" class="imgIcon" width="300" height="300" onclick="clickBarcodeScanner()"></li>
-                    <li><p class="imageLabel">Camera</p><img src="static/img/icons8-cameras-64.png" class="imgIcon" width="300" height="300" onclick="clickCameraScanner()"></li>
+                    <li><p class="imageLabel">Camera</p><img src="static/img/icons8-cameras-64.png" class="imgIcon" width="300" height="300" onclick="clickCameraScanner()" autofocus></li>
                     <li><p class="imageLabel">Submit</p><img src="static/img/icons8-save-as-80.png" class="imgIcon" width="300" height="300" onclick="clickSubmit()"></li>
                 </ul>
+            </div>
+        </div>
+
+        <!-- Camera Scanner Scene -->
+        <div id="cameraScene" class="Scene" autofocus></div>
+
+        <!-- Barcode Scanner Scene -->
+        <div id="barcodeScannerScene" class="Scene">
+            <div class="mb-3 text-center">
+                <label id="idLabel" class="form-label mb-3 pageLabel">Scan the BON</label>
+                <textarea class="form-control mb-3 textInput" id="barcodeScannerInput" rows="1" onkeypress="submitBarcodeBONCheck(event)" autofocus></textarea>
+                <button type="submit" id="buttonSubmitBON" class="btn btn-dark btn-lg submitButton" onclick="submitBarcodeBON()">Ok</button>
             </div>
         </div>
 
@@ -40,7 +50,7 @@
         <div id="recipientScene" class="Scene">
             <div class="mb-3 text-center">
                 <label class="form-label mb-3 pageLabel">No. of recipient:</label>
-                <textarea class="form-control mb-3 textInput" id="recipientTextInput" rows="1"></textarea>
+                <textarea class="form-control mb-3 textInput" id="recipientTextInput" rows="1" autofocus></textarea>
                 <button type="submit" id="buttonSkipRecipient" class="btn btn-dark btn-lg submitButton" onclick="submitRecipient(null)">Skip</button>
                 <button type="submit" id="buttonSubmitRecipient" class="btn btn-dark btn-lg submitButton" onclick="submitRecipient(document.getElementById('recipientTextInput').value)">Ok</button>
             </div>
@@ -50,20 +60,21 @@
         <div id="amountScene" class="Scene">
             <div class="mb-3 form-check text-center">
                 <label class="form-label mb-3 pageLabel">Amount delivered:</label>
-                <textarea class="form-control mb-3 textInput" id="amountTextInput" rows="1"></textarea>
+                <textarea class="form-control mb-3 textInput" id="amountTextInput" rows="1" autofocus></textarea>
                 <button type="submit" id="buttonSubmitAmountFull" class="btn btn-dark btn-lg submitButton" onclick="submitAmount(true)">Full</button>
                 <button type="submit" id="buttonSubmitAmount" class="btn btn-dark btn-lg submitButton" onclick="submitAmount()">Ok</button>
             </div>
         </div>
 
-        <!-- Barcode Scanner Scene -->
-        <div id="barcodeScannerScene" class="Scene">
+        <!-- Server Feedback Scene -->
+        <div id="serverFeedbackScene" class="Scene">
             <div class="mb-3 text-center">
-                <label id="idLabel" class="form-label mb-3 pageLabel">Scan the BON</label>
-                <textarea class="form-control mb-3 textInput" id="barcodeScannerInput" rows="1"></textarea>
-                <button type="submit" id="buttonSubmitBON" class="btn btn-dark btn-lg submitButton" onclick="submitBarcodeBON()">Ok</button>
+                <p class="sceneText" id="serverFeedbackSceneText">Waiting for a response from the server...</p>
+                <button id="buttonOkServerFeedback" class="btn btn-dark btn-lg submitButton" onclick="okServerFeedback()" disabled="true">Ok</button>
+                <button id="buttonRetryServerFeedback" class="btn btn-dark btn-lg submitButton" onclick="retryServerFeedback()" disabled="true">Retry</button>
             </div>
         </div>
+        
 
     </div>
     </div>      
@@ -76,17 +87,18 @@
         // init the ScanContent object 
         let scanContent = null;
 
-        // get width, height from context
+        // get width, height from jinja context
         const width = {{ size[0] }};
         const height = {{ size[1] }};
 
         // create Scenes
-        const destinationScene = new Scene("destinationScene");
-        const cameraScene = new Scene("cameraScene");
-        const barcodeScannerScene = new Scene("barcodeScannerScene");
-        const confirmationScene = new Scene("confirmationScene");
-        const recipientScene = new Scene("recipientScene");
-        const amountScene = new Scene("amountScene");
+        const destinationScene = new Scene("destinationScene", "destinationTextInput");
+        const cameraScene = new Scene("cameraScene", "cameraScene");
+        const barcodeScannerScene = new Scene("barcodeScannerScene", "barcodeScannerInput");
+        const confirmationScene = new Scene("confirmationScene", "confirmationScene");
+        const recipientScene = new Scene("recipientScene", "recipientTextInput");
+        const amountScene = new Scene("amountScene", "amountTextInput");
+        const serverFeedbackScene = new Scene("serverFeedbackScene", "serverFeedbackSceneText");
 
         // enable first Scene
         destinationScene.enable();
@@ -135,15 +147,14 @@
 
         function clickSubmit() {
 
-            if(scanContent.bons.length > 0) {
-                scanContent.sendPost();
-                confirmationScene.disable();
-                destinationScene.enable();
-            }
-            else {
+            // check if at least one bon has been added 
+            if(scanContent.bons.length <= 0) {
                 alert("No bons have been added yet!");
+                return;
             }
-            
+            scanContent.sendPost(updateFeedbackScene);
+            confirmationScene.disable();
+            serverFeedbackScene.enable();
         }
 
         // Recipient Scene
@@ -192,6 +203,45 @@
                 barcodeScannerScene.disable();
                 recipientScene.enable();
             }
+        }
+
+        function submitBarcodeBONCheck(event) {
+            // submit if enter key was pressed
+            if (event.keyCode == 13) {
+                submitBarcodeBON();
+            }
+        }
+
+        // Server Feedback Scene 
+
+        function okServerFeedback() {
+            resetFeedbackScene();
+            serverFeedbackScene.disable();
+            destinationScene.enable();
+        }
+
+        function retryServerFeedback() {
+            resetFeedbackScene();
+            scanContent.sendPost(updateFeedbackScene);
+        }
+
+        function updateFeedbackScene() {
+            let textSuccess = "The booking was successfull";
+            let textFailed = `The booking was NOT successfull. Possible problems\n:
+                - The csv file is currently being used on the host machine\n
+                - The server is offline\n 
+                - No WiFi connection
+                `
+            let feedbackText = scanContent.postSuccess ? textSuccess : textFailed;
+            document.getElementById("serverFeedbackSceneText").innerHTML = feedbackText;
+            document.getElementById("buttonRetryServerFeedback").disabled = scanContent.postSuccess;
+            document.getElementById("buttonOkServerFeedback").disabled = false;
+        }
+
+        function resetFeedbackScene() {
+            document.getElementById("serverFeedbackSceneText").innerHTML = "Waiting for a response from the server...";
+            document.getElementById("buttonRetryServerFeedback").disabled = true
+            document.getElementById("buttonOkServerFeedback").disabled = true;
         }
     
     </script>

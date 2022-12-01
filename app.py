@@ -1,10 +1,13 @@
-# TODO: fix animation bug + remove variable isAnimated
-# TODO: fix zoom 
+# TODO: enter as OK in barcode window ----- Testing
+# TODO: autofocus input fields ----- Testing
+# TODO: add additional window after trying to upload changes (ok and retry options)
+# TODO: create csv directory in start if needed 
 
 from flask import Flask, render_template, request
 import csv 
 import datetime
 import os
+import time
 
 app = Flask(__name__)
 
@@ -45,7 +48,7 @@ def route_bookings():
     """
     if "bons" not in data or "destination" not in data or "recipients" not in data or "amounts" not in data:
         print(data)
-        return "Missing data for bons or destinations", 400 
+        return "Missing data", 400 
 
     # fetch data from request
     bons = data["bons"]
@@ -55,21 +58,24 @@ def route_bookings():
 
     dt = datetime.datetime.now()
     date = dt.strftime("%Y-%m-%d")
-    time = dt.strftime("%H-%M-%S")
+    dtime = dt.strftime("%H-%M-%S")
 
 
     # write to csv file
     file_name = get_filename()
-    with open(file_name, "a") as file:
-        for i in range(len(bons)):
-            bon = bons[i]
-            recipient = recipients[i]
-            amount = amounts[i]
-            row = [bon, destination, recipient, amount, date, time]
-            writer = csv.writer(file)
-            writer.writerow(row)
+    try :
+        with open(file_name, "a") as file:
+            for i in range(len(bons)):
+                bon = bons[i]
+                recipient = recipients[i]
+                amount = amounts[i]
+                row = [bon, destination, recipient, amount, date, dtime]
+                writer = csv.writer(file)
+                writer.writerow(row)
 
-    return "OK", 200
+        return "OK", 200
+    except PermissionError:
+        return "File is used!", 400
 
 
 

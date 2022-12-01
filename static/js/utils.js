@@ -2,10 +2,14 @@
 // ScanContent holds all entities for one destination
 class ScanContent {
 
+    // record fields
     destination;
     bons = [];
     recipients = [];
     amounts = [];
+
+    // server feedback state 
+    postSuccess = false;
 
     constructor(destination) {
         this.destination = destination;
@@ -27,7 +31,7 @@ class ScanContent {
         return JSON.stringify(this);
     }
 
-    sendPost() {
+    sendPost(callback) {
 
         // content of the post request
         const content = {
@@ -42,11 +46,12 @@ class ScanContent {
         const response = fetch("/bookings/", content) 
             .then(resp => {
                 if (resp.ok) {
-                    alert("The booking was successfull.");
+                    this.postSuccess = true;
                 }
                 else {
-                    alert("There was an error!");
+                    this.postSuccess = false;
                 }
+                callback();
             }
         );
 
@@ -58,11 +63,13 @@ class ScanContent {
 // Each scene points to the following one 
 
 class Scene {
-    // id of the corresponding div
-    id;
 
-    constructor(id) {
+    id; // id of the surrounding div 
+    anchor; // id of the element to focus 
+
+    constructor(id, anchor) {
         this.id = id;
+        this.anchor = anchor;
     }
 
     disable() {
@@ -71,6 +78,11 @@ class Scene {
 
     enable() {
         document.getElementById(this.id).style.display = "table-cell";
+        this.focus();
+    }
+
+    focus() {
+        document.getElementById(this.anchor).focus();
     }
 
     nextScene(scene) {
