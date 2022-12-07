@@ -109,7 +109,7 @@
         // Destination Scene
         function submitDestination() {
 
-            let input = document.getElementById("destinationTextInput").value;
+            let input = document.getElementById("destinationTextInput").value.trim();
 
             if (!input) {
                 // TODO: add shake animation
@@ -160,19 +160,15 @@
         // Recipient Scene
 
         function submitRecipient(txt) {
-            if (txt == "") {
-                // error animation
-            }
-            else {
-                scanContent.addRecipient(txt);
-                clearText("recipientTextInput");
-                recipientScene.disable();
-                amountScene.enable();
-                }  
+            let content = txt == null ? "" : txt.trim();
+            scanContent.addRecipient(content);
+            clearText("recipientTextInput");
+            recipientScene.disable();
+            amountScene.enable();
         }
 
         function submitAmount(full = false) {
-            let input = document.getElementById("amountTextInput").value;
+            let input = document.getElementById("amountTextInput").value.trim();
 
             if (full || input) {
                 let amount = full ? "full" : input;
@@ -190,7 +186,7 @@
         // Barcode Scene 
 
         function submitBarcodeBON() {
-            let input = document.getElementById("barcodeScannerInput").value;
+            let input = document.getElementById("barcodeScannerInput").value.trim();
 
             if (!input) {
                 // shake text area
@@ -227,11 +223,7 @@
 
         function updateFeedbackScene() {
             let textSuccess = "The booking was successfull";
-            let textFailed = `The booking was NOT successfull. Possible problems\n:
-                - The csv file is currently being used on the host machine\n
-                - The server is offline\n 
-                - No WiFi connection
-                `
+            let textFailed = "The booking was NOT successfull. Possible problems:\n - The csv file is currently being used on the host machine\n - The server is offline\n - No WiFi connection"
             let feedbackText = scanContent.postSuccess ? textSuccess : textFailed;
             document.getElementById("serverFeedbackSceneText").innerHTML = feedbackText;
             document.getElementById("buttonRetryServerFeedback").disabled = scanContent.postSuccess;

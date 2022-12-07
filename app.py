@@ -1,6 +1,6 @@
 # TODO: enter as OK in barcode window ----- Testing
 # TODO: autofocus input fields ----- Testing
-# TODO: add additional window after trying to upload changes (ok and retry options)
+# TODO: add additional window after trying to upload changes (ok and retry options) ----- Testing
 # TODO: create csv directory in start if needed 
 
 from flask import Flask, render_template, request
