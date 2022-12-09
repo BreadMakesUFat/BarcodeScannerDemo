@@ -1,2 +1,2 @@
-- flask
-- pyopenssl
+Flask==2.2.2
+pyOpenSSL==22.1.0

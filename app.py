@@ -20,7 +20,7 @@ def get_filename():
 # Create csv file for current day iff it doesnt exist already
 def init_csv():
     file_name = get_filename()
-    header = ["BON", "Destination", "No. of recipient", "Amount", "Date", "Time"]
+    header = ["BON", "Destination", "No. of recipient", "Amount", "Unit", "Date", "Time"]
     if not os.path.exists(file_name):
         with open(file_name, "a") as file:
                 writer = csv.writer(file)
@@ -46,7 +46,7 @@ def route_bookings():
 
     data = data["scanContent"]
     """
-    if "bons" not in data or "destination" not in data or "recipients" not in data or "amounts" not in data:
+    if "bons" not in data or "destination" not in data or "recipients" not in data or "amounts" not in data or "units" not in data:
         print(data)
         return "Missing data", 400 
 
@@ -54,6 +54,7 @@ def route_bookings():
     bons = data["bons"]
     recipients = data["recipients"]
     amounts = data["amounts"]
+    units = data["units"]
     destination = data["destination"]
 
     dt = datetime.datetime.now()
@@ -69,7 +70,8 @@ def route_bookings():
                 bon = bons[i]
                 recipient = recipients[i]
                 amount = amounts[i]
-                row = [bon, destination, recipient, amount, date, dtime]
+                unit = units[i]
+                row = [bon, destination, recipient, amount, unit, date, dtime]
                 writer = csv.writer(file)
                 writer.writerow(row)
 

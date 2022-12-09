@@ -6,3 +6,4 @@ config.py
 csv/
 start.exe 
 update.exe
+Dockerfile

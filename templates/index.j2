@@ -60,6 +60,16 @@
         <div id="amountScene" class="Scene">
             <div class="mb-3 form-check text-center">
                 <label class="form-label mb-3 pageLabel">Amount delivered:</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text pageLabel">Unit</label>
+                    </div>
+                    <select class="custom-select pageSelect" id="selectAmountInput">
+                        <option selected>Pieces</option>
+                        <option>Boxes</option>
+                        <option>kg</option>
+                    </select>
+                </div>
                 <textarea class="form-control mb-3 textInput" id="amountTextInput" rows="1" autofocus></textarea>
                 <button type="submit" id="buttonSubmitAmountFull" class="btn btn-dark btn-lg submitButton" onclick="submitAmount(true)">Full</button>
                 <button type="submit" id="buttonSubmitAmount" class="btn btn-dark btn-lg submitButton" onclick="submitAmount()">Ok</button>
@@ -169,10 +179,12 @@
 
         function submitAmount(full = false) {
             let input = document.getElementById("amountTextInput").value.trim();
+            let unit = document.getElementById("selectAmountInput").value.trim();
 
             if (full || input) {
                 let amount = full ? "full" : input;
                 scanContent.addAmount(amount);
+                scanContent.addUnit(unit);
                 clearText("amountTextInput");
                 amountScene.disable();
                 confirmationScene.enable();

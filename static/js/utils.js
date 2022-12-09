@@ -7,6 +7,7 @@ class ScanContent {
     bons = [];
     recipients = [];
     amounts = [];
+    units = [];
 
     // server feedback state 
     postSuccess = false;
@@ -25,6 +26,10 @@ class ScanContent {
 
     addAmount(amount) {
         this.amounts.push(amount);
+    }
+
+    addUnit(unit) {
+        this.units.push(unit);
     }
 
     json() {
