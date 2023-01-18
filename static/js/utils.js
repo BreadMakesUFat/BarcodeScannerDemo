@@ -4,8 +4,8 @@ class ScanContent {
 
     // record fields
     destination;
+    recipients = null;
     bons = [];
-    recipients = [];
     amounts = [];
     units = [];
 
@@ -20,8 +20,8 @@ class ScanContent {
         this.bons.push(bon);
     }
 
-    addRecipient(recipient) {
-        this.recipients.push(recipient);
+    setRecipients(recipients) {
+        this.recipients = recipients;
     }
 
     addAmount(amount) {

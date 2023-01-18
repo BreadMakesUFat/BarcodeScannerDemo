@@ -49,7 +49,7 @@
         <!-- Recipient Scene -->
         <div id="recipientScene" class="Scene">
             <div class="mb-3 text-center">
-                <label class="form-label mb-3 pageLabel">No. of recipient:</label>
+                <label class="form-label mb-3 pageLabel">No. of recipients:</label>
                 <textarea class="form-control mb-3 textInput" id="recipientTextInput" rows="1" autofocus></textarea>
                 <button type="submit" id="buttonSkipRecipient" class="btn btn-dark btn-lg submitButton" onclick="submitRecipient(null)">Skip</button>
                 <button type="submit" id="buttonSubmitRecipient" class="btn btn-dark btn-lg submitButton" onclick="submitRecipient(document.getElementById('recipientTextInput').value)">Ok</button>
@@ -132,8 +132,17 @@
                 // change scene to confirmation scene
                 clearText("destinationTextInput");
                 destinationScene.disable();
-                confirmationScene.enable();
+                recipientScene.enable();
             }
+        }
+
+        // Recipient Scene
+        function submitRecipient(txt) {
+            let content = txt == null ? "" : txt.trim();
+            scanContent.setRecipients(content);
+            clearText("recipientTextInput");
+            recipientScene.disable();
+            confirmationScene.enable();
         }
 
         function clickBarcodeScanner() {
@@ -152,7 +161,7 @@
             scanContent.addBon(decodedText);
             stopScanning()
             barcodeScannerScene.disable();
-            recipientScene.enable();
+            amountScene.enable();
         }
 
         function clickSubmit() {
@@ -165,16 +174,6 @@
             scanContent.sendPost(updateFeedbackScene);
             confirmationScene.disable();
             serverFeedbackScene.enable();
-        }
-
-        // Recipient Scene
-
-        function submitRecipient(txt) {
-            let content = txt == null ? "" : txt.trim();
-            scanContent.addRecipient(content);
-            clearText("recipientTextInput");
-            recipientScene.disable();
-            amountScene.enable();
         }
 
         function submitAmount(full = false) {
@@ -209,7 +208,7 @@
                 // change scene to confirmation page
                 clearText("barcodeScannerInput");
                 barcodeScannerScene.disable();
-                recipientScene.enable();
+                amountScene.enable();
             }
         }
 

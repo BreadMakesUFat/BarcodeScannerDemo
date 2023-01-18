@@ -68,10 +68,9 @@ def route_bookings():
         with open(file_name, "a") as file:
             for i in range(len(bons)):
                 bon = bons[i]
-                recipient = recipients[i]
                 amount = amounts[i]
                 unit = units[i]
-                row = [bon, destination, recipient, amount, unit, date, dtime]
+                row = [bon, destination, recipients, amount, unit, date, dtime]
                 writer = csv.writer(file)
                 writer.writerow(row)
 
